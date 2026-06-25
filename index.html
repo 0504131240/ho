@@ -445,15 +445,18 @@
     .num-pick-btn.has-value { color: var(--primary); border-color: var(--primary); background: #fff3e0; }
     .num-pick-btn.active { border-color: var(--primary); background: #fff3e0; box-shadow: 0 0 0 3px rgba(230,126,34,0.18); }
 
-    /* ===== INLINE PICKER ===== */
+    /* ===== INLINE PICKER — small floating box ===== */
     .inline-picker-wrap {
       position: relative;
+      width: 86px;
       height: 108px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 2px solid var(--primary);
       background: #fff8f0;
       overflow: hidden;
       margin-bottom: 8px;
+      margin-right: auto; /* pushes to left (button side) in RTL */
+      box-shadow: 0 6px 20px rgba(230,126,34,0.22);
     }
     .inline-picker-scroll {
       height: 100%;
@@ -482,23 +485,23 @@
       height: 36px;
       border-top: 2px solid var(--primary);
       border-bottom: 2px solid var(--primary);
-      background: rgba(230,126,34,0.08);
+      background: rgba(230,126,34,0.10);
       pointer-events: none;
       z-index: 1;
     }
     .inline-picker-fade-top {
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 36px;
-      background: linear-gradient(to bottom, #fff8f0 30%, transparent);
+      height: 34px;
+      background: linear-gradient(to bottom, #fff8f0 40%, transparent);
       pointer-events: none;
       z-index: 2;
     }
     .inline-picker-fade-bottom {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 36px;
-      background: linear-gradient(to top, #fff8f0 30%, transparent);
+      height: 34px;
+      background: linear-gradient(to top, #fff8f0 40%, transparent);
       pointer-events: none;
       z-index: 2;
     }
