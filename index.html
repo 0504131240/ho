@@ -429,7 +429,6 @@
     }
     .worker-type-input:focus { outline: none; border-color: var(--primary); }
 
-    /* Order buttons */
     .wt-order-btns { display: flex; flex-direction: column; gap: 2px; }
     .wt-order-btn {
       background: none;
@@ -451,9 +450,9 @@
       background: none;
       border: 1px solid var(--border);
       border-radius: 6px;
-      width: 26px; height: 26px;
+      width: 28px; height: 28px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       display: flex; align-items: center; justify-content: center;
       color: var(--text-light);
       transition: all 0.12s;
@@ -464,7 +463,7 @@
     .add-type-row {
       display: flex;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 14px;
       align-items: center;
     }
     .add-type-row .form-input {
@@ -473,7 +472,6 @@
       font-size: 13px;
     }
 
-    /* Divider */
     .modal-divider {
       border: none;
       border-top: 1px solid var(--border);
@@ -527,7 +525,6 @@
     .toast.success { background: var(--success); }
     .toast.error { background: var(--danger); }
 
-    /* Empty state */
     .empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); }
     .empty-icon { font-size: 54px; margin-bottom: 14px; }
     .empty-text { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
@@ -575,13 +572,11 @@
 
 <main>
 
-  <!-- ===== יומן פועלים ===== -->
   <div id="section-journal" class="section active">
     <div class="section-header">
       <div class="section-title"><span>📅</span> יומן פועלים</div>
       <button class="btn btn-primary" onclick="openDayModal(todayStr())">✏️ עדכן היום</button>
     </div>
-
     <div class="card">
       <div class="calendar-controls">
         <div class="calendar-nav">
@@ -595,17 +590,14 @@
       </div>
       <div class="monthly-stats" id="monthly-stats"></div>
     </div>
-
     <div id="journal-recent"></div>
   </div>
 
-  <!-- ===== התקדמות ===== -->
   <div id="section-progress" class="section">
     <div class="section-header">
       <div class="section-title"><span>📊</span> עדכוני התקדמות</div>
       <button class="btn btn-primary" onclick="toggleUpdateForm()" id="add-update-btn">➕ הוסף עדכון</button>
     </div>
-
     <div class="card collapsible-form" id="update-form">
       <h3 style="margin-bottom:18px;font-size:16px;color:var(--secondary)">✏️ עדכון חדש</h3>
       <div class="form-group">
@@ -634,26 +626,22 @@
         <button class="btn btn-primary" onclick="saveUpdate()">💾 שמור</button>
       </div>
     </div>
-
     <div class="filter-bar">
       <input type="text" class="form-input" id="prog-search" placeholder="🔍 חיפוש..." oninput="renderUpdates()">
     </div>
     <div class="updates-list" id="updates-list"></div>
   </div>
 
-  <!-- ===== תוכניות ===== -->
   <div id="section-plans" class="section">
     <div class="section-header">
       <div class="section-title"><span>📐</span> תוכניות</div>
     </div>
-
     <div class="plans-upload-zone" id="plans-drop-zone" onclick="document.getElementById('plans-input').click()">
       <div class="plans-upload-icon">📁</div>
       <div class="plans-upload-text">גרור קבצים לכאן או לחץ להעלאה</div>
       <div class="plans-upload-sub">PDF, DWG, תמונות וכל סוג מסמך</div>
       <input type="file" id="plans-input" multiple onchange="handlePlansUpload(this)">
     </div>
-
     <div class="filter-bar">
       <input type="text" class="form-input" id="plans-search" placeholder="🔍 חיפוש בתוכניות..." oninput="renderPlans()">
       <select class="form-select" id="plans-filter" onchange="renderPlans()" style="max-width:180px">
@@ -688,12 +676,11 @@
       <hr class="modal-divider">
 
       <div class="form-group">
-        <label class="form-label">פירוט לפי סוג</label>
+        <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span>פירוט לפי סוג</span>
+          <button class="btn btn-secondary btn-sm" onclick="openEditTypesModal()" style="font-size:12px;padding:4px 12px">✏️ ערוך סוגים</button>
+        </label>
         <div id="worker-types-list"></div>
-        <div class="add-type-row">
-          <input type="text" class="form-input" id="new-worker-type" placeholder="הוסף סוג פועל...">
-          <button class="btn btn-secondary btn-sm" onclick="addWorkerType()" style="white-space:nowrap">+ הוסף</button>
-        </div>
       </div>
 
       <hr class="modal-divider">
@@ -711,24 +698,41 @@
   </div>
 </div>
 
+<!-- ===== מודל עריכת סוגי פועלים ===== -->
+<div class="modal-overlay" id="edit-types-overlay" onclick="closeEditTypesModal(event)" style="z-index:1100">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <div class="modal-title">✏️ ניהול סוגי פועלים</div>
+      <button class="modal-close" onclick="closeEditTypesModal(null,true)">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="edit-types-list"></div>
+      <div class="add-type-row">
+        <input type="text" class="form-input" id="edit-new-type" placeholder="שם הסוג החדש...">
+        <button class="btn btn-secondary btn-sm" onclick="editAddType()" style="white-space:nowrap">+ הוסף</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeEditTypesModal(null,true)">✓ סיום</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Lightbox ===== -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<!-- ===== Toast ===== -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== STATE =====
 let currentDate = new Date();
 let activeDayStr = null;
 let pendingUpdatePhotos = [];
 
 const DEFAULT_WORKER_TYPES = ['תפסנים','בנאים','טייחים','עובד כללי','רצפים','פועלי גמר'];
 
-// ===== STORAGE =====
 const DB = {
   get: k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } },
   set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
@@ -752,52 +756,69 @@ function getCurrentTypeValues() {
 
 function renderWorkerTypesList(savedValues) {
   const types = getWorkerTypes();
-  document.getElementById('worker-types-list').innerHTML = types.map((t, i) => `
+  document.getElementById('worker-types-list').innerHTML = types.map(t => `
     <div class="worker-type-row">
-      <div class="wt-order-btns">
-        <button class="wt-order-btn" onclick="moveWorkerType(${i},-1)" ${i===0?'disabled':''}">&#9650;</button>
-        <button class="wt-order-btn" onclick="moveWorkerType(${i},1)" ${i===types.length-1?'disabled':''}">&#9660;</button>
-      </div>
-      <span class="worker-type-label">&#128119; ${t}</span>
-      <input type="number" class="worker-type-input" data-type="${t}" min="0" value="${(savedValues&&savedValues[t])||0}" oninput="updateTotalFromTypes()">
-      <button class="wt-delete-btn" onclick="deleteWorkerType(${i})" title="&#1502;&#1495;&#1511; &#1505;&#1493;&#1�3;">&#10005;</button>
+      <span class="worker-type-label">👷 ${t}</span>
+      <input type="number" class="worker-type-input" data-type="${t}" min="0" value="${(savedValues && savedValues[t]) || 0}" oninput="updateTotalFromTypes()">
     </div>
   `).join('');
 }
 
-function addWorkerType() {
-  const input = document.getElementById('new-worker-type');
+// ===== EDIT TYPES MODAL =====
+function openEditTypesModal() {
+  renderEditTypesList();
+  document.getElementById('edit-new-type').value = '';
+  document.getElementById('edit-types-overlay').classList.add('open');
+}
+
+function closeEditTypesModal(e, force) {
+  if (!force && e && e.target !== document.getElementById('edit-types-overlay')) return;
+  document.getElementById('edit-types-overlay').classList.remove('open');
+  const currentVals = getCurrentTypeValues();
+  renderWorkerTypesList(currentVals);
+  updateTotalFromTypes();
+}
+
+function renderEditTypesList() {
+  const types = getWorkerTypes();
+  document.getElementById('edit-types-list').innerHTML = types.map((t, i) => `
+    <div class="worker-type-row">
+      <div class="wt-order-btns">
+        <button class="wt-order-btn" onclick="editMoveType(${i},-1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+        <button class="wt-order-btn" onclick="editMoveType(${i},1)" ${i === types.length - 1 ? 'disabled' : ''}>▼</button>
+      </div>
+      <span class="worker-type-label">👷 ${t}</span>
+      <button class="wt-delete-btn" onclick="editDeleteType(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function editAddType() {
+  const input = document.getElementById('edit-new-type');
   const name = input.value.trim();
   if (!name) return;
   const types = getWorkerTypes();
   if (types.includes(name)) { showToast('סוג זה כבר קיים', 'error'); return; }
-  const currentVals = getCurrentTypeValues();
   types.push(name);
   DB.setArr('workerTypes', types);
   input.value = '';
-  renderWorkerTypesList(currentVals);
-  updateTotalFromTypes();
+  renderEditTypesList();
 }
 
-function deleteWorkerType(idx) {
+function editDeleteType(idx) {
   const types = getWorkerTypes();
-  const currentVals = getCurrentTypeValues();
-  delete currentVals[types[idx]];
   types.splice(idx, 1);
   DB.setArr('workerTypes', types);
-  renderWorkerTypesList(currentVals);
-  updateTotalFromTypes();
+  renderEditTypesList();
 }
 
-function moveWorkerType(idx, dir) {
+function editMoveType(idx, dir) {
   const types = getWorkerTypes();
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= types.length) return;
-  const currentVals = getCurrentTypeValues();
   [types[idx], types[newIdx]] = [types[newIdx], types[idx]];
   DB.setArr('workerTypes', types);
-  renderWorkerTypesList(currentVals);
-  updateTotalFromTypes();
+  renderEditTypesList();
 }
 
 // ===== TABS =====
@@ -946,7 +967,6 @@ function openDayModal(ds) {
   const e = DB.get('journal')[ds] || { total: 0, types: {}, notes: '' };
   document.getElementById('worker-count-display').textContent = e.total || 0;
   document.getElementById('day-notes').value = e.notes || '';
-  document.getElementById('new-worker-type').value = '';
   renderWorkerTypesList(e.types || {});
   const del = document.getElementById('day-delete-btn');
   del.style.display = (DB.get('journal')[ds] && DB.get('journal')[ds].total > 0) ? 'inline-flex' : 'none';
@@ -1138,7 +1158,6 @@ function renderPlans() {
   const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(1) + ' MB';
   const fmtTime = ts => new Date(ts).toLocaleDateString('he-IL');
   const fileIcon = p => p.type === 'image' ? '🖼️' : p.ext === 'pdf' ? '📄' : ['dwg','dxf'].includes(p.ext) ? '📐' : '📁';
-
   el.innerHTML = `<div class="plans-grid">${filtered.map(p => `
     <div class="plan-item">
       ${p.type === 'image'
@@ -1204,8 +1223,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDrop('upd-photo-zone', handleUpdatePhotos);
   setupDrop('plans-drop-zone', handlePlansUpload);
   document.getElementById('upd-date').max = todayStr();
-  document.getElementById('new-worker-type').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addWorkerType();
+  document.getElementById('edit-new-type').addEventListener('keydown', e => {
+    if (e.key === 'Enter') editAddType();
   });
 });
 </script>
