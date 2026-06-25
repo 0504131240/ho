@@ -429,12 +429,12 @@
 
     /* Num pick button */
     .num-pick-btn {
-      min-width: 56px;
-      height: 42px;
+      min-width: 52px;
+      height: 38px;
       border: 2px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: #f8f9fa;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: var(--text-light);
       cursor: pointer;
@@ -448,12 +448,12 @@
     /* ===== INLINE PICKER ===== */
     .inline-picker-wrap {
       position: relative;
-      height: 156px;
-      border-radius: 12px;
+      height: 108px;
+      border-radius: 8px;
       border: 2px solid var(--primary);
       background: #fff8f0;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .inline-picker-scroll {
       height: 100%;
@@ -463,13 +463,13 @@
       scrollbar-width: none;
     }
     .inline-picker-scroll::-webkit-scrollbar { display: none; }
-    .inline-picker-pad { height: 52px; flex-shrink: 0; }
+    .inline-picker-pad { height: 36px; flex-shrink: 0; }
     .inline-picker-item {
-      height: 52px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 20px;
       font-weight: 800;
       color: var(--text-light);
       scroll-snap-align: center;
@@ -479,7 +479,7 @@
       top: 50%;
       transform: translateY(-50%);
       left: 0; right: 0;
-      height: 52px;
+      height: 36px;
       border-top: 2px solid var(--primary);
       border-bottom: 2px solid var(--primary);
       background: rgba(230,126,34,0.08);
@@ -489,7 +489,7 @@
     .inline-picker-fade-top {
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 52px;
+      height: 36px;
       background: linear-gradient(to bottom, #fff8f0 30%, transparent);
       pointer-events: none;
       z-index: 2;
@@ -497,7 +497,7 @@
     .inline-picker-fade-bottom {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 52px;
+      height: 36px;
       background: linear-gradient(to top, #fff8f0 30%, transparent);
       pointer-events: none;
       z-index: 2;
@@ -795,6 +795,8 @@ let pendingUpdatePhotos = [];
 let pickerActiveType = null;
 let pickerCloseHandler = null;
 
+const ITEM_H = 36;
+
 const DEFAULT_WORKER_TYPES = ['תפסנים','בנאים','טייחים','עובד כללי','רצפים','פועלי גמר'];
 
 const DB = {
@@ -849,7 +851,6 @@ function openNumPicker(typeIdx) {
 
   btn.classList.add('active');
 
-  // Build picker HTML
   let html = '<div class="inline-picker-fade-top"></div>' +
              '<div class="inline-picker-highlight"></div>' +
              '<div class="inline-picker-fade-bottom"></div>' +
@@ -865,28 +866,24 @@ function openNumPicker(typeIdx) {
   pickerEl.className = 'inline-picker-wrap';
   pickerEl.innerHTML = html;
 
-  // Insert after the row that contains this button
   const row = btn.closest('.worker-type-row');
   row.after(pickerEl);
 
-  // Scroll to current value
   const scrollEl = document.getElementById('inline-picker-scroll');
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
-      scrollEl.scrollTop = currentVal * 52;
+      scrollEl.scrollTop = currentVal * ITEM_H;
     });
   });
 
-  // Live update as user scrolls
   scrollEl.addEventListener('scroll', function() {
-    const val = Math.max(0, Math.min(99, Math.round(this.scrollTop / 52)));
+    const val = Math.max(0, Math.min(99, Math.round(this.scrollTop / ITEM_H)));
     btn.dataset.value = val;
     btn.textContent = val;
     btn.classList.toggle('has-value', val > 0);
     updateTotalFromTypes();
   }, { passive: true });
 
-  // Close when clicking anywhere outside the picker or its button
   setTimeout(function() {
     pickerCloseHandler = function(e) {
       const picker = document.getElementById('inline-picker');
