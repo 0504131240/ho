@@ -424,7 +424,7 @@
     }
 
     /* Worker type rows */
-    .worker-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .worker-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     .worker-type-label { font-size: 14px; font-weight: 600; flex: 1; color: var(--text); }
 
     /* Num pick button */
@@ -443,7 +443,67 @@
     }
     .num-pick-btn:hover { border-color: var(--primary); }
     .num-pick-btn.has-value { color: var(--primary); border-color: var(--primary); background: #fff3e0; }
+    .num-pick-btn.active { border-color: var(--primary); background: #fff3e0; box-shadow: 0 0 0 3px rgba(230,126,34,0.18); }
 
+    /* ===== INLINE PICKER ===== */
+    .inline-picker-wrap {
+      position: relative;
+      height: 156px;
+      border-radius: 12px;
+      border: 2px solid var(--primary);
+      background: #fff8f0;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .inline-picker-scroll {
+      height: 100%;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .inline-picker-scroll::-webkit-scrollbar { display: none; }
+    .inline-picker-pad { height: 52px; flex-shrink: 0; }
+    .inline-picker-item {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-light);
+      scroll-snap-align: center;
+    }
+    .inline-picker-highlight {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0; right: 0;
+      height: 52px;
+      border-top: 2px solid var(--primary);
+      border-bottom: 2px solid var(--primary);
+      background: rgba(230,126,34,0.08);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .inline-picker-fade-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: linear-gradient(to bottom, #fff8f0 30%, transparent);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .inline-picker-fade-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 52px;
+      background: linear-gradient(to top, #fff8f0 30%, transparent);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Edit types helpers */
     .wt-order-btns { display: flex; flex-direction: column; gap: 2px; }
     .wt-order-btn {
       background: none;
@@ -460,7 +520,6 @@
     }
     .wt-order-btn:hover:not([disabled]) { border-color: var(--primary); color: var(--primary); }
     .wt-order-btn[disabled] { opacity: 0.25; cursor: default; }
-
     .wt-delete-btn {
       background: none;
       border: 1px solid var(--border);
@@ -474,126 +533,14 @@
       flex-shrink: 0;
     }
     .wt-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
-
     .add-type-row {
       display: flex;
       gap: 8px;
       margin-top: 14px;
       align-items: center;
     }
-    .add-type-row .form-input {
-      flex: 1;
-      padding: 8px 12px;
-      font-size: 13px;
-    }
-
-    .modal-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 18px 0;
-    }
-
-    /* ===== NUM PICKER OVERLAY ===== */
-    .picker-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 1200;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .picker-overlay.open { display: flex; }
-    .picker-sheet {
-      background: var(--card);
-      border-radius: 20px 20px 0 0;
-      width: 100%;
-      max-width: 420px;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    .picker-sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px 10px;
-      border-bottom: 1px solid var(--border);
-    }
-    .picker-sheet-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--secondary);
-    }
-    .picker-sheet-close {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--text-light);
-      padding: 4px 8px;
-      border-radius: 6px;
-    }
-    .picker-sheet-close:hover { background: #f0f0f0; }
-    .picker-wrap {
-      position: relative;
-      height: 180px;
-      overflow: hidden;
-      margin: 8px 20px;
-    }
-    .picker-fade-top {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(to bottom, var(--card), transparent);
-      pointer-events: none;
-      z-index: 2;
-    }
-    .picker-fade-bottom {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(to top, var(--card), transparent);
-      pointer-events: none;
-      z-index: 2;
-    }
-    .picker-highlight {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      left: 0; right: 0;
-      height: 52px;
-      border-top: 2px solid var(--primary);
-      border-bottom: 2px solid var(--primary);
-      background: rgba(230,126,34,0.07);
-      pointer-events: none;
-      z-index: 1;
-    }
-    .picker-scroll {
-      height: 100%;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .picker-scroll::-webkit-scrollbar { display: none; }
-    .picker-pad { height: 64px; flex-shrink: 0; }
-    .picker-item {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--text-light);
-      scroll-snap-align: center;
-      cursor: pointer;
-    }
-    .picker-sheet-footer {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      padding: 12px 20px 18px;
-      border-top: 1px solid var(--border);
-    }
+    .add-type-row .form-input { flex: 1; padding: 8px 12px; font-size: 13px; }
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
 
     /* Lightbox */
     .lightbox {
@@ -833,29 +780,6 @@
   </div>
 </div>
 
-<!-- ===== גלילת מספרים ===== -->
-<div class="picker-overlay" id="num-picker-overlay" onclick="closeNumPicker(event)">
-  <div class="picker-sheet" onclick="event.stopPropagation()">
-    <div class="picker-sheet-header">
-      <div class="picker-sheet-title" id="picker-title">בחר כמות</div>
-      <button class="picker-sheet-close" onclick="closeNumPicker(null,true)">✕</button>
-    </div>
-    <div class="picker-wrap">
-      <div class="picker-fade-top"></div>
-      <div class="picker-highlight"></div>
-      <div class="picker-fade-bottom"></div>
-      <div class="picker-scroll" id="picker-scroll">
-        <div class="picker-pad"></div>
-        <div class="picker-pad"></div>
-      </div>
-    </div>
-    <div class="picker-sheet-footer">
-      <button class="btn btn-secondary" onclick="closeNumPicker(null,true)">ביטול</button>
-      <button class="btn btn-primary" onclick="confirmNumPicker()">✓ אישור</button>
-    </div>
-  </div>
-</div>
-
 <!-- ===== Lightbox ===== -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -869,6 +793,7 @@ let currentDate = new Date();
 let activeDayStr = null;
 let pendingUpdatePhotos = [];
 let pickerActiveType = null;
+let pickerCloseHandler = null;
 
 const DEFAULT_WORKER_TYPES = ['תפסנים','בנאים','טייחים','עובד כללי','רצפים','פועלי גמר'];
 
@@ -912,51 +837,84 @@ function updateTotalFromTypes() {
   document.getElementById('worker-count-display').textContent = total;
 }
 
-// ===== NUM PICKER =====
+// ===== INLINE NUM PICKER =====
 function openNumPicker(typeIdx) {
+  closeNumPicker();
+
   const types = getWorkerTypes();
   pickerActiveType = types[typeIdx];
   const btn = document.querySelector('#worker-types-list .num-pick-btn[data-type="' + pickerActiveType + '"]');
-  const currentVal = btn ? (parseInt(btn.dataset.value) || 0) : 0;
-  document.getElementById('picker-title').textContent = '👷 ' + pickerActiveType;
-  const scroll = document.getElementById('picker-scroll');
-  let html = '<div class="picker-pad"></div>';
+  if (!btn) return;
+  const currentVal = parseInt(btn.dataset.value) || 0;
+
+  btn.classList.add('active');
+
+  // Build picker HTML
+  let html = '<div class="inline-picker-fade-top"></div>' +
+             '<div class="inline-picker-highlight"></div>' +
+             '<div class="inline-picker-fade-bottom"></div>' +
+             '<div class="inline-picker-scroll" id="inline-picker-scroll">' +
+             '<div class="inline-picker-pad"></div>';
   for (let i = 0; i <= 99; i++) {
-    html += '<div class="picker-item">' + i + '</div>';
+    html += '<div class="inline-picker-item">' + i + '</div>';
   }
-  html += '<div class="picker-pad"></div>';
-  scroll.innerHTML = html;
-  document.getElementById('num-picker-overlay').classList.add('open');
+  html += '<div class="inline-picker-pad"></div></div>';
+
+  const pickerEl = document.createElement('div');
+  pickerEl.id = 'inline-picker';
+  pickerEl.className = 'inline-picker-wrap';
+  pickerEl.innerHTML = html;
+
+  // Insert after the row that contains this button
+  const row = btn.closest('.worker-type-row');
+  row.after(pickerEl);
+
+  // Scroll to current value
+  const scrollEl = document.getElementById('inline-picker-scroll');
   requestAnimationFrame(function() {
     requestAnimationFrame(function() {
-      scroll.scrollTop = currentVal * 52;
+      scrollEl.scrollTop = currentVal * 52;
     });
   });
+
+  // Live update as user scrolls
+  scrollEl.addEventListener('scroll', function() {
+    const val = Math.max(0, Math.min(99, Math.round(this.scrollTop / 52)));
+    btn.dataset.value = val;
+    btn.textContent = val;
+    btn.classList.toggle('has-value', val > 0);
+    updateTotalFromTypes();
+  }, { passive: true });
+
+  // Close when clicking anywhere outside the picker or its button
+  setTimeout(function() {
+    pickerCloseHandler = function(e) {
+      const picker = document.getElementById('inline-picker');
+      if (picker && !picker.contains(e.target) && e.target !== btn) {
+        closeNumPicker();
+      }
+    };
+    document.addEventListener('click', pickerCloseHandler, true);
+  }, 0);
 }
 
-function closeNumPicker(e, force) {
-  if (!force && e && e.target !== document.getElementById('num-picker-overlay')) return;
-  document.getElementById('num-picker-overlay').classList.remove('open');
-  pickerActiveType = null;
-}
-
-function confirmNumPicker() {
-  if (!pickerActiveType) return;
-  const scroll = document.getElementById('picker-scroll');
-  const val = Math.round(scroll.scrollTop / 52);
-  const clampedVal = Math.max(0, Math.min(99, val));
-  const btn = document.querySelector('#worker-types-list .num-pick-btn[data-type="' + pickerActiveType + '"]');
-  if (btn) {
-    btn.dataset.value = clampedVal;
-    btn.textContent = clampedVal;
-    btn.classList.toggle('has-value', clampedVal > 0);
+function closeNumPicker() {
+  const el = document.getElementById('inline-picker');
+  if (el) el.remove();
+  if (pickerCloseHandler) {
+    document.removeEventListener('click', pickerCloseHandler, true);
+    pickerCloseHandler = null;
   }
-  updateTotalFromTypes();
-  closeNumPicker(null, true);
+  if (pickerActiveType) {
+    const btn = document.querySelector('#worker-types-list .num-pick-btn[data-type="' + pickerActiveType + '"]');
+    if (btn) btn.classList.remove('active');
+  }
+  pickerActiveType = null;
 }
 
 // ===== EDIT TYPES MODAL =====
 function openEditTypesModal() {
+  closeNumPicker();
   renderEditTypesList();
   document.getElementById('edit-new-type').value = '';
   document.getElementById('edit-types-overlay').classList.add('open');
@@ -1166,12 +1124,14 @@ function openDayModal(ds) {
 
 function closeDayModal(e, force) {
   if (!force && e && e.target !== document.getElementById('day-modal-overlay')) return;
+  closeNumPicker();
   document.getElementById('day-modal-overlay').classList.remove('open');
   activeDayStr = null;
 }
 
 function saveDayEntry() {
   if (!activeDayStr) return;
+  closeNumPicker();
   const total = parseInt(document.getElementById('worker-count-display').textContent) || 0;
   const types = getCurrentTypeValues();
   const notes = document.getElementById('day-notes').value.trim();
