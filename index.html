@@ -154,10 +154,7 @@
       text-align: center;
       flex: 1;
     }
-    .cal-swipe-wrapper {
-      overflow: hidden;
-      touch-action: pan-y;
-    }
+    .cal-swipe-wrapper { overflow: hidden; touch-action: pan-y; }
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -418,11 +415,11 @@
     .counter-btn:hover { border-color: var(--primary); color: var(--primary); }
     .counter-value { font-size: 36px; font-weight: 800; color: var(--primary); min-width: 56px; text-align: center; }
 
-    .worker-type-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .worker-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .worker-type-label { font-size: 14px; font-weight: 600; flex: 1; color: var(--text); }
     .worker-type-input {
-      width: 72px;
-      padding: 7px 10px;
+      width: 68px;
+      padding: 7px 8px;
       border: 2px solid var(--border);
       border-radius: 8px;
       font-size: 15px;
@@ -431,6 +428,50 @@
       font-family: inherit;
     }
     .worker-type-input:focus { outline: none; border-color: var(--primary); }
+
+    /* Order buttons */
+    .wt-order-btns { display: flex; flex-direction: column; gap: 2px; }
+    .wt-order-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 24px; height: 20px;
+      cursor: pointer;
+      font-size: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-light);
+      padding: 0;
+      line-height: 1;
+      transition: all 0.12s;
+    }
+    .wt-order-btn:hover:not([disabled]) { border-color: var(--primary); color: var(--primary); }
+    .wt-order-btn[disabled] { opacity: 0.25; cursor: default; }
+
+    .wt-delete-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 26px; height: 26px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-light);
+      transition: all 0.12s;
+      flex-shrink: 0;
+    }
+    .wt-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    .add-type-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .add-type-row .form-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
 
     /* Divider */
     .modal-divider {
@@ -648,25 +689,10 @@
 
       <div class="form-group">
         <label class="form-label">פירוט לפי סוג</label>
-        <div class="worker-type-row">
-          <span class="worker-type-label">🧱 בנאים</span>
-          <input type="number" class="worker-type-input" id="wt-bricklayers" min="0" value="0" oninput="updateTotalFromTypes()">
-        </div>
-        <div class="worker-type-row">
-          <span class="worker-type-label">🔧 אינסטלטורים</span>
-          <input type="number" class="worker-type-input" id="wt-plumbers" min="0" value="0" oninput="updateTotalFromTypes()">
-        </div>
-        <div class="worker-type-row">
-          <span class="worker-type-label">⚡ חשמלאים</span>
-          <input type="number" class="worker-type-input" id="wt-electricians" min="0" value="0" oninput="updateTotalFromTypes()">
-        </div>
-        <div class="worker-type-row">
-          <span class="worker-type-label">🪵 נגרים</span>
-          <input type="number" class="worker-type-input" id="wt-carpenters" min="0" value="0" oninput="updateTotalFromTypes()">
-        </div>
-        <div class="worker-type-row">
-          <span class="worker-type-label">👷 כללי</span>
-          <input type="number" class="worker-type-input" id="wt-general" min="0" value="0" oninput="updateTotalFromTypes()">
+        <div id="worker-types-list"></div>
+        <div class="add-type-row">
+          <input type="text" class="form-input" id="new-worker-type" placeholder="הוסף סוג פועל...">
+          <button class="btn btn-secondary btn-sm" onclick="addWorkerType()" style="white-space:nowrap">+ הוסף</button>
         </div>
       </div>
 
@@ -700,6 +726,8 @@ let currentDate = new Date();
 let activeDayStr = null;
 let pendingUpdatePhotos = [];
 
+const DEFAULT_WORKER_TYPES = ['תפסנים','בנאים','טייחים','עובד כללי','רצפים','פועלי גמר'];
+
 // ===== STORAGE =====
 const DB = {
   get: k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } },
@@ -707,6 +735,70 @@ const DB = {
   getArr: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
   setArr: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
 };
+
+// ===== WORKER TYPES =====
+function getWorkerTypes() {
+  const stored = DB.getArr('workerTypes');
+  return stored.length ? stored : [...DEFAULT_WORKER_TYPES];
+}
+
+function getCurrentTypeValues() {
+  const values = {};
+  document.querySelectorAll('#worker-types-list input[data-type]').forEach(inp => {
+    values[inp.dataset.type] = parseInt(inp.value) || 0;
+  });
+  return values;
+}
+
+function renderWorkerTypesList(savedValues) {
+  const types = getWorkerTypes();
+  document.getElementById('worker-types-list').innerHTML = types.map((t, i) => `
+    <div class="worker-type-row">
+      <div class="wt-order-btns">
+        <button class="wt-order-btn" onclick="moveWorkerType(${i},-1)" ${i===0?'disabled':''}">▲</button>
+        <button class="wt-order-btn" onclick="moveWorkerType(${i},1)" ${i===types.length-1?'disabled':''}">▼</button>
+      </div>
+      <span class="worker-type-label">👷 ${t}</span>
+      <input type="number" class="worker-type-input" data-type="${t}" min="0" value="${(savedValues&&savedValues[t])||0}" oninput="updateTotalFromTypes()">
+      <button class="wt-delete-btn" onclick="deleteWorkerType(${i})" title="מחק סוג">✕</button>
+    </div>
+  `).join('');
+}
+
+function addWorkerType() {
+  const input = document.getElementById('new-worker-type');
+  const name = input.value.trim();
+  if (!name) return;
+  const types = getWorkerTypes();
+  if (types.includes(name)) { showToast('סוג זה כבר קיים', 'error'); return; }
+  const currentVals = getCurrentTypeValues();
+  types.push(name);
+  DB.setArr('workerTypes', types);
+  input.value = '';
+  renderWorkerTypesList(currentVals);
+  updateTotalFromTypes();
+}
+
+function deleteWorkerType(idx) {
+  const types = getWorkerTypes();
+  const currentVals = getCurrentTypeValues();
+  delete currentVals[types[idx]];
+  types.splice(idx, 1);
+  DB.setArr('workerTypes', types);
+  renderWorkerTypesList(currentVals);
+  updateTotalFromTypes();
+}
+
+function moveWorkerType(idx, dir) {
+  const types = getWorkerTypes();
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= types.length) return;
+  const currentVals = getCurrentTypeValues();
+  [types[idx], types[newIdx]] = [types[newIdx], types[idx]];
+  DB.setArr('workerTypes', types);
+  renderWorkerTypesList(currentVals);
+  updateTotalFromTypes();
+}
 
 // ===== TABS =====
 function showTab(name) {
@@ -739,13 +831,9 @@ function hebrewMonth(y, m) {
 function setupCalendarSwipe() {
   const wrapper = document.getElementById('cal-swipe-wrapper');
   let startX = 0, startY = 0, dragging = false;
-
   wrapper.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    dragging = true;
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY; dragging = true;
   }, { passive: true });
-
   wrapper.addEventListener('touchend', e => {
     if (!dragging) return;
     dragging = false;
@@ -858,9 +946,8 @@ function openDayModal(ds) {
   const e = DB.get('journal')[ds] || { total: 0, types: {}, notes: '' };
   document.getElementById('worker-count-display').textContent = e.total || 0;
   document.getElementById('day-notes').value = e.notes || '';
-  ['bricklayers','plumbers','electricians','carpenters','general'].forEach(t => {
-    document.getElementById('wt-'+t).value = (e.types && e.types[t]) || 0;
-  });
+  document.getElementById('new-worker-type').value = '';
+  renderWorkerTypesList(e.types || {});
   const del = document.getElementById('day-delete-btn');
   del.style.display = (DB.get('journal')[ds] && DB.get('journal')[ds].total > 0) ? 'inline-flex' : 'none';
   document.getElementById('day-modal-overlay').classList.add('open');
@@ -878,18 +965,17 @@ function adjustWorkers(delta) {
 }
 
 function updateTotalFromTypes() {
-  const total = ['bricklayers','plumbers','electricians','carpenters','general']
-    .reduce((s, t) => s + (parseInt(document.getElementById('wt-'+t).value) || 0), 0);
+  let total = 0;
+  document.querySelectorAll('#worker-types-list input[data-type]').forEach(inp => {
+    total += parseInt(inp.value) || 0;
+  });
   document.getElementById('worker-count-display').textContent = total;
 }
 
 function saveDayEntry() {
   if (!activeDayStr) return;
   const total = parseInt(document.getElementById('worker-count-display').textContent) || 0;
-  const types = {};
-  ['bricklayers','plumbers','electricians','carpenters','general'].forEach(t => {
-    types[t] = parseInt(document.getElementById('wt-'+t).value) || 0;
-  });
+  const types = getCurrentTypeValues();
   const notes = document.getElementById('day-notes').value.trim();
   const journal = DB.get('journal');
   journal[activeDayStr] = { total, types, notes, updatedAt: Date.now() };
@@ -1118,6 +1204,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDrop('upd-photo-zone', handleUpdatePhotos);
   setupDrop('plans-drop-zone', handlePlansUpload);
   document.getElementById('upd-date').max = todayStr();
+  document.getElementById('new-worker-type').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addWorkerType();
+  });
 });
 </script>
 </body>
