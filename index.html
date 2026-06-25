@@ -455,7 +455,7 @@
       background: #fff8f0;
       overflow: hidden;
       margin-bottom: 8px;
-      margin-right: auto; /* pushes to left (button side) in RTL */
+      margin-right: auto;
       box-shadow: 0 6px 20px rgba(230,126,34,0.22);
     }
     .inline-picker-scroll {
@@ -731,7 +731,6 @@
       <button class="modal-close" onclick="closeDayModal(null,true)">✕</button>
     </div>
     <div class="modal-body">
-
       <div class="form-group">
         <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <span>פירוט לפי סוג</span>
@@ -739,7 +738,6 @@
         </label>
         <div id="worker-types-list"></div>
       </div>
-
       <div class="form-group">
         <label class="form-label">סה"כ פועלים</label>
         <div class="worker-total-box">
@@ -747,9 +745,7 @@
           <div class="worker-total-sub">מחושב אוטומטית</div>
         </div>
       </div>
-
       <hr class="modal-divider">
-
       <div class="form-group">
         <label class="form-label">הערות</label>
         <textarea class="form-textarea" id="day-notes" placeholder="הערות לגבי יום העבודה..." style="min-height:70px"></textarea>
@@ -804,10 +800,33 @@ const DEFAULT_WORKER_TYPES = ['תפסנים','בנאים','טייחים','עוב
 
 const DB = {
   get: k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } },
-  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
   getArr: k => { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
-  setArr: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+  setArr: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
 };
+
+// ===== IMAGE COMPRESSION =====
+function compressImage(file, maxDim, quality) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w >= h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve({ name: file.name, data: canvas.toDataURL('image/jpeg', quality) });
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 // ===== WORKER TYPES =====
 function getWorkerTypes() {
@@ -845,54 +864,32 @@ function updateTotalFromTypes() {
 // ===== INLINE NUM PICKER =====
 function openNumPicker(typeIdx) {
   closeNumPicker();
-
   const types = getWorkerTypes();
   pickerActiveType = types[typeIdx];
   const btn = document.querySelector('#worker-types-list .num-pick-btn[data-type="' + pickerActiveType + '"]');
   if (!btn) return;
   const currentVal = parseInt(btn.dataset.value) || 0;
-
   btn.classList.add('active');
-
-  let html = '<div class="inline-picker-fade-top"></div>' +
-             '<div class="inline-picker-highlight"></div>' +
-             '<div class="inline-picker-fade-bottom"></div>' +
-             '<div class="inline-picker-scroll" id="inline-picker-scroll">' +
-             '<div class="inline-picker-pad"></div>';
-  for (let i = 0; i <= 99; i++) {
-    html += '<div class="inline-picker-item">' + i + '</div>';
-  }
+  let html = '<div class="inline-picker-fade-top"></div><div class="inline-picker-highlight"></div><div class="inline-picker-fade-bottom"></div><div class="inline-picker-scroll" id="inline-picker-scroll"><div class="inline-picker-pad"></div>';
+  for (let i = 0; i <= 99; i++) html += '<div class="inline-picker-item">' + i + '</div>';
   html += '<div class="inline-picker-pad"></div></div>';
-
   const pickerEl = document.createElement('div');
   pickerEl.id = 'inline-picker';
   pickerEl.className = 'inline-picker-wrap';
   pickerEl.innerHTML = html;
-
-  const row = btn.closest('.worker-type-row');
-  row.after(pickerEl);
-
+  btn.closest('.worker-type-row').after(pickerEl);
   const scrollEl = document.getElementById('inline-picker-scroll');
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      scrollEl.scrollTop = currentVal * ITEM_H;
-    });
-  });
-
+  requestAnimationFrame(() => requestAnimationFrame(() => { scrollEl.scrollTop = currentVal * ITEM_H; }));
   scrollEl.addEventListener('scroll', function() {
     const val = Math.max(0, Math.min(99, Math.round(this.scrollTop / ITEM_H)));
-    btn.dataset.value = val;
-    btn.textContent = val;
+    btn.dataset.value = val; btn.textContent = val;
     btn.classList.toggle('has-value', val > 0);
     updateTotalFromTypes();
   }, { passive: true });
-
-  setTimeout(function() {
-    pickerCloseHandler = function(e) {
+  setTimeout(() => {
+    pickerCloseHandler = e => {
       const picker = document.getElementById('inline-picker');
-      if (picker && !picker.contains(e.target) && e.target !== btn) {
-        closeNumPicker();
-      }
+      if (picker && !picker.contains(e.target) && e.target !== btn) closeNumPicker();
     };
     document.addEventListener('click', pickerCloseHandler, true);
   }, 0);
@@ -901,10 +898,7 @@ function openNumPicker(typeIdx) {
 function closeNumPicker() {
   const el = document.getElementById('inline-picker');
   if (el) el.remove();
-  if (pickerCloseHandler) {
-    document.removeEventListener('click', pickerCloseHandler, true);
-    pickerCloseHandler = null;
-  }
+  if (pickerCloseHandler) { document.removeEventListener('click', pickerCloseHandler, true); pickerCloseHandler = null; }
   if (pickerActiveType) {
     const btn = document.querySelector('#worker-types-list .num-pick-btn[data-type="' + pickerActiveType + '"]');
     if (btn) btn.classList.remove('active');
@@ -938,8 +932,7 @@ function renderEditTypesList() {
       </div>
       <span class="worker-type-label">👷 ${t}</span>
       <button class="wt-delete-btn" onclick="editDeleteType(${i})">✕</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function editAddType() {
@@ -1001,12 +994,9 @@ function hebrewMonth(y, m) {
 function setupCalendarSwipe() {
   const wrapper = document.getElementById('cal-swipe-wrapper');
   let startX = 0, startY = 0, dragging = false;
-  wrapper.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX; startY = e.touches[0].clientY; dragging = true;
-  }, { passive: true });
+  wrapper.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dragging = true; }, { passive: true });
   wrapper.addEventListener('touchend', e => {
-    if (!dragging) return;
-    dragging = false;
+    if (!dragging) return; dragging = false;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
@@ -1023,40 +1013,28 @@ function changeMonth(dir) {
 function animateCalendar(dir) {
   const grid = document.getElementById('calendar-grid');
   const fromX = dir === 'next' ? '40px' : '-40px';
-  grid.style.transition = 'none';
-  grid.style.transform = `translateX(${fromX})`;
-  grid.style.opacity = '0';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      grid.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
-      grid.style.transform = 'translateX(0)';
-      grid.style.opacity = '1';
-    });
-  });
+  grid.style.transition = 'none'; grid.style.transform = `translateX(${fromX})`; grid.style.opacity = '0';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    grid.style.transition = 'transform 0.28s ease, opacity 0.28s ease';
+    grid.style.transform = 'translateX(0)'; grid.style.opacity = '1';
+  }));
 }
 
 function renderCalendar(animDir) {
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear(), month = currentDate.getMonth();
   const today = todayStr();
   const journal = DB.get('journal');
-
   document.getElementById('cal-month-label').textContent = hebrewMonth(year, month);
-
   const grid = document.getElementById('calendar-grid');
   const days = ['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','ש׳'];
   grid.innerHTML = days.map(d => `<div class="cal-day-header">${d}</div>`).join('');
-
   const firstDay = new Date(year, month, 1).getDay();
   const total = new Date(year, month+1, 0).getDate();
-
   for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="cal-day empty"></div>`;
-
   for (let day = 1; day <= total; day++) {
     const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const e = journal[ds];
-    const isToday = ds === today;
-    const isFuture = ds > today;
+    const isToday = ds === today, isFuture = ds > today;
     let cls = 'cal-day';
     if (isToday) cls += ' today';
     if (e && e.total > 0) cls += ' has-data';
@@ -1066,31 +1044,24 @@ function renderCalendar(animDir) {
       ${e && e.total > 0 ? `<div class="cal-day-workers">${e.total}פ'</div>` : ''}
     </div>`;
   }
-
   let totalDays = 0, totalWorkers = 0, maxDay = 0;
   Object.entries(journal).forEach(([ds, e]) => {
     const [y, m] = ds.split('-');
     if (parseInt(y) === year && parseInt(m)-1 === month && e.total > 0) {
-      totalDays++;
-      totalWorkers += e.total;
-      if (e.total > maxDay) maxDay = e.total;
+      totalDays++; totalWorkers += e.total; if (e.total > maxDay) maxDay = e.total;
     }
   });
   document.getElementById('monthly-stats').innerHTML = `
     <div class="stat-box"><div class="stat-num">${totalDays}</div><div class="stat-label">ימי עבודה</div></div>
     <div class="stat-box"><div class="stat-num">${totalWorkers}</div><div class="stat-label">סה"כ נוכחות</div></div>
     <div class="stat-box"><div class="stat-num">${maxDay}</div><div class="stat-label">שיא יומי</div></div>`;
-
   if (animDir) animateCalendar(animDir);
   renderJournalRecent();
 }
 
 function renderJournalRecent() {
   const journal = DB.get('journal');
-  const entries = Object.entries(journal)
-    .filter(([,e]) => e.total > 0)
-    .sort((a,b) => b[0].localeCompare(a[0]))
-    .slice(0, 5);
+  const entries = Object.entries(journal).filter(([,e]) => e.total > 0).sort((a,b) => b[0].localeCompare(a[0])).slice(0, 5);
   const el = document.getElementById('journal-recent');
   if (!entries.length) { el.innerHTML = ''; return; }
   el.innerHTML = `<div class="card">
@@ -1137,7 +1108,7 @@ function saveDayEntry() {
   const notes = document.getElementById('day-notes').value.trim();
   const journal = DB.get('journal');
   journal[activeDayStr] = { total, types, notes, updatedAt: Date.now() };
-  DB.set('journal', journal);
+  if (!DB.set('journal', journal)) { showToast('❌ שגיאה בשמירה', 'error'); return; }
   closeDayModal(null, true);
   renderCalendar();
   showToast('✅ היומן עודכן!', 'success');
@@ -1158,35 +1129,26 @@ function toggleUpdateForm(forceClose) {
   const form = document.getElementById('update-form');
   const btn = document.getElementById('add-update-btn');
   if (forceClose || form.classList.contains('open')) {
-    form.classList.remove('open');
-    btn.innerHTML = '➕ הוסף עדכון';
-    resetUpdateForm();
+    form.classList.remove('open'); btn.innerHTML = '➕ הוסף עדכון'; resetUpdateForm();
   } else {
-    form.classList.add('open');
-    btn.innerHTML = '✕ סגור';
+    form.classList.add('open'); btn.innerHTML = '✕ סגור';
     document.getElementById('upd-date').value = todayStr();
   }
 }
 
 function resetUpdateForm() {
-  ['upd-date','upd-title','upd-desc'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+  ['upd-date','upd-title','upd-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   document.getElementById('upd-photo-previews').innerHTML = '';
   pendingUpdatePhotos = [];
 }
 
 function handleUpdatePhotos(input) {
-  Array.from(input.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      pendingUpdatePhotos.push({ name: file.name, data: e.target.result });
-      renderUpdatePhotoPreviews();
-    };
-    reader.readAsDataURL(file);
-  });
+  const files = Array.from(input.files);
   input.value = '';
+  Promise.all(files.map(f => compressImage(f, 800, 0.75))).then(results => {
+    results.forEach(p => pendingUpdatePhotos.push(p));
+    renderUpdatePhotoPreviews();
+  });
 }
 
 function renderUpdatePhotoPreviews() {
@@ -1194,8 +1156,7 @@ function renderUpdatePhotoPreviews() {
     `<div class="photo-preview-item">
       <img src="${p.data}" alt="${p.name}">
       <button class="remove-photo" onclick="removePendingPhoto(${i})">✕</button>
-    </div>`
-  ).join('');
+    </div>`).join('');
 }
 
 function removePendingPhoto(idx) {
@@ -1210,7 +1171,10 @@ function saveUpdate() {
   if (!date || !title) { showToast('נא למלא תאריך וכותרת', 'error'); return; }
   const updates = DB.getArr('updates');
   updates.unshift({ id: Date.now(), date, title, desc, photos: [...pendingUpdatePhotos], createdAt: Date.now() });
-  DB.setArr('updates', updates);
+  if (!DB.setArr('updates', updates)) {
+    showToast('❌ אין מקום — נסה פחות תמונות', 'error');
+    return;
+  }
   toggleUpdateForm(true);
   renderUpdates();
   showToast('✅ עדכון נשמר!', 'success');
@@ -1219,16 +1183,10 @@ function saveUpdate() {
 function renderUpdates() {
   const updates = DB.getArr('updates');
   const q = (document.getElementById('prog-search')?.value || '').toLowerCase();
-  const filtered = updates.filter(u =>
-    !q || u.title.toLowerCase().includes(q) || (u.desc||'').toLowerCase().includes(q)
-  );
+  const filtered = updates.filter(u => !q || u.title.toLowerCase().includes(q) || (u.desc||'').toLowerCase().includes(q));
   const el = document.getElementById('updates-list');
   if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📊</div>
-      <div class="empty-text">אין עדכונים עדיין</div>
-      <div class="empty-sub">לחץ על "הוסף עדכון" כדי להתחיל</div>
-    </div>`;
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">אין עדכונים עדיין</div><div class="empty-sub">לחץ על "הוסף עדכון" כדי להתחיל</div></div>`;
     return;
   }
   el.innerHTML = filtered.map(u => `
@@ -1258,39 +1216,42 @@ function deleteUpdate(id) {
 // ===== PLANS =====
 function handlePlansUpload(input) {
   const files = Array.from(input.files);
-  const plans = DB.getArr('plans');
-  Promise.all(files.map(file => new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const ext = file.name.split('.').pop().toLowerCase();
-      const type = ['jpg','jpeg','png','gif','webp','svg'].includes(ext) ? 'image'
-                 : ext === 'pdf' ? 'pdf' : 'other';
-      plans.unshift({ id: Date.now() + Math.random(), name: file.name, size: file.size, type, ext, data: e.target.result, uploadedAt: Date.now() });
-      resolve();
-    };
-    reader.readAsDataURL(file);
-  }))).then(() => {
-    DB.setArr('plans', plans);
+  input.value = '';
+  const imgExts = ['jpg','jpeg','png','gif','webp','svg'];
+  Promise.all(files.map(file => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const isImg = imgExts.includes(ext);
+    if (isImg) {
+      return compressImage(file, 1200, 0.82).then(c => ({
+        id: Date.now() + Math.random(), name: file.name, size: file.size,
+        type: 'image', ext, data: c.data, uploadedAt: Date.now()
+      }));
+    }
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve({
+        id: Date.now() + Math.random(), name: file.name, size: file.size,
+        type: ext === 'pdf' ? 'pdf' : 'other', ext, data: e.target.result, uploadedAt: Date.now()
+      });
+      reader.readAsDataURL(file);
+    });
+  })).then(newPlans => {
+    const plans = DB.getArr('plans');
+    newPlans.forEach(p => plans.unshift(p));
+    if (!DB.setArr('plans', plans)) { showToast('❌ אין מקום לשמור קבצים', 'error'); return; }
     renderPlans();
     showToast(`✅ ${files.length} קבצים הועלו!`, 'success');
   });
-  input.value = '';
 }
 
 function renderPlans() {
   const plans = DB.getArr('plans');
   const q = (document.getElementById('plans-search')?.value || '').toLowerCase();
   const ft = document.getElementById('plans-filter')?.value || '';
-  const filtered = plans.filter(p =>
-    (!q || p.name.toLowerCase().includes(q)) && (!ft || p.type === ft)
-  );
+  const filtered = plans.filter(p => (!q || p.name.toLowerCase().includes(q)) && (!ft || p.type === ft));
   const el = document.getElementById('plans-grid');
   if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📐</div>
-      <div class="empty-text">אין תוכניות עדיין</div>
-      <div class="empty-sub">גרור קבצים או לחץ להעלאה</div>
-    </div>`;
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📐</div><div class="empty-text">אין תוכניות עדיין</div><div class="empty-sub">גרור קבצים או לחץ להעלאה</div></div>`;
     return;
   }
   const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(1) + ' MB';
@@ -1298,9 +1259,7 @@ function renderPlans() {
   const fileIcon = p => p.type === 'image' ? '🖼️' : p.ext === 'pdf' ? '📄' : ['dwg','dxf'].includes(p.ext) ? '📐' : '📁';
   el.innerHTML = `<div class="plans-grid">${filtered.map(p => `
     <div class="plan-item">
-      ${p.type === 'image'
-        ? `<img class="plan-thumb" src="${p.data}" onclick="openLightbox('${p.data}')">`
-        : `<div class="plan-icon">${fileIcon(p)}</div>`}
+      ${p.type === 'image' ? `<img class="plan-thumb" src="${p.data}" onclick="openLightbox('${p.data}')">` : `<div class="plan-icon">${fileIcon(p)}</div>`}
       <div class="plan-name">${p.name}</div>
       <div class="plan-meta">${fmtSize(p.size)} · ${fmtTime(p.uploadedAt)}</div>
       <div class="plan-actions">
@@ -1330,27 +1289,19 @@ function setupDrop(zoneId, handler) {
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
+    e.preventDefault(); zone.classList.remove('drag-over');
     if (e.dataTransfer.files.length) handler({ files: e.dataTransfer.files, value: '' });
   });
 }
 
 // ===== LIGHTBOX =====
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-}
+function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
 // ===== TOAST =====
 function showToast(msg, type) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + (type || '');
-  t.classList.add('show');
+  t.textContent = msg; t.className = 'toast ' + (type || ''); t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
@@ -1361,9 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDrop('upd-photo-zone', handleUpdatePhotos);
   setupDrop('plans-drop-zone', handlePlansUpload);
   document.getElementById('upd-date').max = todayStr();
-  document.getElementById('edit-new-type').addEventListener('keydown', e => {
-    if (e.key === 'Enter') editAddType();
-  });
+  document.getElementById('edit-new-type').addEventListener('keydown', e => { if (e.key === 'Enter') editAddType(); });
 });
 </script>
 </body>
