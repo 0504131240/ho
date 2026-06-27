@@ -300,54 +300,115 @@
     }
     .update-photo:hover { transform: scale(1.04); border-color: var(--primary); }
 
-    /* ===== PLANS ===== */
-    .plans-upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 40px;
-      text-align: center;
+    /* ===== PLANS v2 - Floors / Apartments ===== */
+    .floor-card { padding: 0; overflow: hidden; }
+    .floor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
       cursor: pointer;
-      transition: all 0.2s;
-      background: #fafafa;
-      margin-bottom: 24px;
+      user-select: none;
+      transition: background 0.15s;
     }
-    .plans-upload-zone:hover, .plans-upload-zone.drag-over { border-color: var(--primary); background: #fff8f0; }
-    .plans-upload-icon { font-size: 48px; margin-bottom: 12px; }
-    .plans-upload-text { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-    .plans-upload-sub { font-size: 13px; color: var(--text-light); }
-    .plans-upload-zone input[type=file] { display: none; }
+    .floor-header:hover { background: #f8f9fa; }
+    .floor-name { font-size: 16px; font-weight: 700; color: var(--secondary); }
+    .floor-meta { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .floor-chevron { font-size: 13px; color: var(--text-light); transition: transform 0.2s; }
+    .floor-content { padding: 4px 16px 16px; border-top: 1px solid var(--border); }
 
-    .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 16px;
-    }
-    .plan-item {
-      background: var(--card);
+    .apt-item {
+      background: #f8f9fa;
       border-radius: 10px;
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .apt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      user-select: none;
+    }
+    .apt-header:hover { background: #ecf0f1; }
+    .apt-content { padding: 14px 16px; border-top: 1px solid var(--border); background: #fff; }
+
+    .plan-type-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .plan-type-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
       border: 2px solid var(--border);
-      padding: 16px;
+      background: #f8f9fa;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .plan-type-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .plan-type-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .plan-type-tab.manage-tab { border-style: dashed; color: var(--text-light); }
+    .plan-type-tab.manage-tab:hover { border-color: var(--primary); color: var(--primary); background: #fff8f0; }
+
+    .plans-upload-zone-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: all 0.15s;
+      margin-bottom: 12px;
+      font-family: inherit;
+      background: none;
+    }
+    .plans-upload-zone-sm:hover { border-color: var(--primary); color: var(--primary); background: #fff8f0; }
+    .plans-upload-zone-sm input { display: none; }
+
+    .apt-plans-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .apt-plan-item {
+      background: #f8f9fa;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
+      width: 100px;
       text-align: center;
-      transition: all 0.15s;
+      transition: border-color 0.15s;
     }
-    .plan-item:hover { border-color: var(--primary); box-shadow: var(--shadow); }
-    .plan-icon { font-size: 40px; }
-    .plan-name { font-size: 13px; font-weight: 600; color: var(--text); word-break: break-word; line-height: 1.4; }
-    .plan-meta { font-size: 11px; color: var(--text-light); }
-    .plan-actions { display: flex; gap: 6px; }
-    .plan-thumb {
-      width: 100%;
-      height: 110px;
-      object-fit: contain;
-      border-radius: 6px;
-      background: #f5f6fa;
-      border: 1px solid var(--border);
-      cursor: pointer;
+    .apt-plan-item:hover { border-color: var(--primary); }
+    .apt-plan-thumb { width: 80px; height: 70px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); }
+    .apt-plan-icon { font-size: 32px; }
+    .apt-plan-name { font-size: 11px; color: var(--text); font-weight: 600; word-break: break-word; line-height: 1.3; }
+    .apt-plan-actions { display: flex; gap: 4px; }
+
+    .pt-manage-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .pt-manage-label { font-size: 14px; font-weight: 600; flex: 1; color: var(--text); }
+    .pt-delete-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      width: 28px; height: 28px; cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-light); transition: all 0.12s; flex-shrink: 0;
     }
+    .pt-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
 
     /* ===== MODAL ===== */
     .modal-overlay {
@@ -702,23 +763,9 @@
   <div id="section-plans" class="section">
     <div class="section-header">
       <div class="section-title"><span>📐</span> תוכניות</div>
+      <button class="btn btn-primary" onclick="openFloorModal()">➕ הוסף קומה</button>
     </div>
-    <div class="plans-upload-zone" id="plans-drop-zone" onclick="document.getElementById('plans-input').click()">
-      <div class="plans-upload-icon">📁</div>
-      <div class="plans-upload-text">גרור קבצים לכאן או לחץ להעלאה</div>
-      <div class="plans-upload-sub">PDF, DWG, תמונות וכל סוג מסמך</div>
-      <input type="file" id="plans-input" multiple onchange="handlePlansUpload(this)">
-    </div>
-    <div class="filter-bar">
-      <input type="text" class="form-input" id="plans-search" placeholder="🔍 חיפוש בתוכניות..." oninput="renderPlans()">
-      <select class="form-select" id="plans-filter" onchange="renderPlans()" style="max-width:180px">
-        <option value="">כל הסוגים</option>
-        <option value="image">תמונות</option>
-        <option value="pdf">PDF</option>
-        <option value="other">אחר</option>
-      </select>
-    </div>
-    <div id="plans-grid"></div>
+    <div id="floors-container"></div>
   </div>
 
 </main>
@@ -775,6 +822,69 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="closeEditTypesModal(null,true)">✓ סיום</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== מודל קומה ===== -->
+<div class="modal-overlay" id="floor-modal-overlay" onclick="if(event.target===this)closeFloorModal()">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title" id="floor-modal-title">➕ קומה חדשה</div>
+      <button class="modal-close" onclick="closeFloorModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">שם הקומה</label>
+        <input type="text" class="form-input" id="floor-modal-name" placeholder="לדוגמה: קומה 1, קרקע, גג..."
+          onkeydown="if(event.key==='Enter')saveFloor()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeFloorModal()">ביטול</button>
+      <button class="btn btn-primary" onclick="saveFloor()">💾 שמור</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== מודל דירה ===== -->
+<div class="modal-overlay" id="apt-modal-overlay" onclick="if(event.target===this)closeAptModal()">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title" id="apt-modal-title">➕ דירה חדשה</div>
+      <button class="modal-close" onclick="closeAptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">שם / מספר הדירה</label>
+        <input type="text" class="form-input" id="apt-modal-name" placeholder="לדוגמה: דירה 1, A, מחסן..."
+          onkeydown="if(event.key==='Enter')saveApt()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeAptModal()">ביטול</button>
+      <button class="btn btn-primary" onclick="saveApt()">💾 שמור</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== מודל ניהול סוגי תוכניות ===== -->
+<div class="modal-overlay" id="plan-type-modal-overlay" onclick="if(event.target===this)closePlanTypeModal()" style="z-index:1100">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <div class="modal-title">📋 סוגי תוכניות</div>
+      <button class="modal-close" onclick="closePlanTypeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="plan-types-manage-list"></div>
+      <div class="add-type-row" style="margin-top:14px">
+        <input type="text" class="form-input" id="plan-type-input" placeholder="שם סוג חדש..."
+          onkeydown="if(event.key==='Enter')addPlanType()" style="padding:8px 12px;font-size:13px">
+        <button class="btn btn-secondary btn-sm" onclick="addPlanType()" style="white-space:nowrap">+ הוסף</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closePlanTypeModal()">✓ סיום</button>
     </div>
   </div>
 </div>
@@ -1213,8 +1323,124 @@ function deleteUpdate(id) {
   showToast('🗑️ נמחק');
 }
 
-// ===== PLANS =====
-function handlePlansUpload(input) {
+// ===== PLANS v2 - Floors / Apartments / Plan Types =====
+
+const DEFAULT_PLAN_TYPES_V2 = ['חשמל', 'אינסטלציה', 'גבס', 'ריצוף', 'חיצוני', 'כללי'];
+
+let expandedFloor = null;
+let expandedApt = null;
+let aptActiveTab = {};
+
+function getFloors() { return DB.getArr('floors_v2'); }
+function saveFloors(f) { DB.setArr('floors_v2', f); }
+function getApartments() { return DB.getArr('apts_v2'); }
+function saveApartments(a) { DB.setArr('apts_v2', a); }
+function getPlanTypes() { const t = DB.getArr('plan_types_v2'); return t.length ? t : [...DEFAULT_PLAN_TYPES_V2]; }
+function savePlanTypes(t) { DB.setArr('plan_types_v2', t); }
+function getAptFiles() { try { return JSON.parse(localStorage.getItem('apt_files_v2')) || {}; } catch { return {}; } }
+function saveAptFiles(d) { try { localStorage.setItem('apt_files_v2', JSON.stringify(d)); return true; } catch { return false; } }
+
+function renderPlans() {
+  const floors = getFloors();
+  const el = document.getElementById('floors-container');
+  if (!floors.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🏢</div><div class="empty-text">אין קומות עדיין</div><div class="empty-sub">לחץ "הוסף קומה" כדי להתחיל לארגן את התוכניות</div></div>`;
+    return;
+  }
+  const apts = getApartments();
+  el.innerHTML = floors.map(floor => {
+    const floorApts = apts.filter(a => a.floorId === floor.id);
+    const isOpen = expandedFloor === floor.id;
+    return `
+      <div class="card floor-card" style="margin-bottom:12px">
+        <div class="floor-header" onclick="toggleFloor('${floor.id}')">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="floor-chevron">${isOpen ? '▼' : '▶'}</span>
+            <div>
+              <div class="floor-name">🏢 ${floor.name}</div>
+              <div class="floor-meta">${floorApts.length} דירות</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+            <button class="btn btn-secondary btn-sm" onclick="openFloorModal('${floor.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="confirmDeleteFloor('${floor.id}')">🗑️</button>
+          </div>
+        </div>
+        ${isOpen ? `
+        <div class="floor-content">
+          ${floorApts.map(apt => renderAptBlock(apt)).join('')}
+          <button class="btn btn-secondary btn-sm" style="margin-top:12px;width:100%;justify-content:center" onclick="openAptModal(null,'${floor.id}')">➕ הוסף דירה</button>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderAptBlock(apt) {
+  const isOpen = expandedApt === apt.id;
+  const planTypes = getPlanTypes();
+  const tab = aptActiveTab[apt.id] || planTypes[0];
+  const allFiles = getAptFiles();
+  const tabFiles = ((allFiles[apt.id] || {})[tab]) || [];
+
+  return `
+    <div class="apt-item">
+      <div class="apt-header" onclick="toggleApt('${apt.id}')">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:var(--text-light);font-size:12px">${isOpen ? '▼' : '▶'}</span>
+          <span>🏠 ${apt.name}</span>
+        </div>
+        <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+          <button class="btn btn-secondary btn-sm" onclick="openAptModal('${apt.id}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteApt('${apt.id}')">🗑️</button>
+        </div>
+      </div>
+      ${isOpen ? `
+      <div class="apt-content">
+        <div class="plan-type-tabs">
+          ${planTypes.map(t => `<button class="plan-type-tab${t===tab?' active':''}" onclick="selectAptTab('${apt.id}',\`${t}\`)">${t}</button>`).join('')}
+          <button class="plan-type-tab manage-tab" onclick="openPlanTypeModal()">⚙️ סוגים</button>
+        </div>
+        <label class="plans-upload-zone-sm">
+          <input type="file" multiple accept="image/*,.pdf,.dwg,.dxf,.docx,.xlsx"
+            onchange="handleAptUpload(this,'${apt.id}',aptActiveTab['${apt.id}']||getPlanTypes()[0])">
+          📎 העלה קבצים
+        </label>
+        <div class="apt-plans-grid">
+          ${tabFiles.length ? tabFiles.map((f,i) => `
+            <div class="apt-plan-item">
+              ${f.type==='image'
+                ? `<img class="apt-plan-thumb" src="${f.data}" onclick="openLightbox('${f.data}')">`
+                : `<div class="apt-plan-icon">${f.ext==='pdf'?'📄':['dwg','dxf'].includes(f.ext)?'📐':'📁'}</div>`}
+              <div class="apt-plan-name">${f.name}</div>
+              <div class="apt-plan-actions">
+                <button class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px" onclick="downloadAptFile('${apt.id}',\`${tab}\`,${i})">⬇️</button>
+                <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:11px" onclick="deleteAptFile('${apt.id}',\`${tab}\`,${i})">🗑️</button>
+              </div>
+            </div>`).join('')
+          : '<div style="color:var(--text-light);font-size:13px;padding:4px 0">אין קבצים עדיין בקטגוריה זו</div>'}
+        </div>
+      </div>` : ''}
+    </div>`;
+}
+
+function toggleFloor(id) {
+  expandedFloor = expandedFloor === id ? null : id;
+  if (expandedFloor !== id) expandedApt = null;
+  renderPlans();
+}
+
+function toggleApt(id) {
+  expandedApt = expandedApt === id ? null : id;
+  renderPlans();
+}
+
+function selectAptTab(aptId, tab) {
+  aptActiveTab[aptId] = tab;
+  renderPlans();
+}
+
+// FILE UPLOAD
+function handleAptUpload(input, aptId, tab) {
   const files = Array.from(input.files);
   input.value = '';
   const imgExts = ['jpg','jpeg','png','gif','webp','svg'];
@@ -1235,51 +1461,149 @@ function handlePlansUpload(input) {
       });
       reader.readAsDataURL(file);
     });
-  })).then(newPlans => {
-    const plans = DB.getArr('plans');
-    newPlans.forEach(p => plans.unshift(p));
-    if (!DB.setArr('plans', plans)) { showToast('❌ אין מקום לשמור קבצים', 'error'); return; }
+  })).then(newFiles => {
+    const allFiles = getAptFiles();
+    if (!allFiles[aptId]) allFiles[aptId] = {};
+    if (!allFiles[aptId][tab]) allFiles[aptId][tab] = [];
+    newFiles.forEach(f => allFiles[aptId][tab].push(f));
+    if (!saveAptFiles(allFiles)) { showToast('❌ אין מקום לשמור קבצים', 'error'); return; }
     renderPlans();
     showToast(`✅ ${files.length} קבצים הועלו!`, 'success');
   });
 }
 
-function renderPlans() {
-  const plans = DB.getArr('plans');
-  const q = (document.getElementById('plans-search')?.value || '').toLowerCase();
-  const ft = document.getElementById('plans-filter')?.value || '';
-  const filtered = plans.filter(p => (!q || p.name.toLowerCase().includes(q)) && (!ft || p.type === ft));
-  const el = document.getElementById('plans-grid');
-  if (!filtered.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📐</div><div class="empty-text">אין תוכניות עדיין</div><div class="empty-sub">גרור קבצים או לחץ להעלאה</div></div>`;
-    return;
-  }
-  const fmtSize = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(1) + ' MB';
-  const fmtTime = ts => new Date(ts).toLocaleDateString('he-IL');
-  const fileIcon = p => p.type === 'image' ? '🖼️' : p.ext === 'pdf' ? '📄' : ['dwg','dxf'].includes(p.ext) ? '📐' : '📁';
-  el.innerHTML = `<div class="plans-grid">${filtered.map(p => `
-    <div class="plan-item">
-      ${p.type === 'image' ? `<img class="plan-thumb" src="${p.data}" onclick="openLightbox('${p.data}')">` : `<div class="plan-icon">${fileIcon(p)}</div>`}
-      <div class="plan-name">${p.name}</div>
-      <div class="plan-meta">${fmtSize(p.size)} · ${fmtTime(p.uploadedAt)}</div>
-      <div class="plan-actions">
-        <button class="btn btn-secondary btn-sm" onclick="downloadPlan(${p.id})">⬇️</button>
-        <button class="btn btn-danger btn-sm" onclick="deletePlan(${p.id})">🗑️</button>
-      </div>
-    </div>`).join('')}</div>`;
+function downloadAptFile(aptId, tab, idx) {
+  const f = ((getAptFiles()[aptId] || {})[tab] || [])[idx];
+  if (!f) return;
+  const a = document.createElement('a'); a.href = f.data; a.download = f.name; a.click();
 }
 
-function downloadPlan(id) {
-  const plan = DB.getArr('plans').find(p => p.id === id);
-  if (!plan) return;
-  const a = document.createElement('a');
-  a.href = plan.data; a.download = plan.name; a.click();
-}
-
-function deletePlan(id) {
-  DB.setArr('plans', DB.getArr('plans').filter(p => p.id !== id));
+function deleteAptFile(aptId, tab, idx) {
+  const allFiles = getAptFiles();
+  if (!allFiles[aptId]?.[tab]) return;
+  allFiles[aptId][tab].splice(idx, 1);
+  saveAptFiles(allFiles);
   renderPlans();
   showToast('🗑️ נמחק');
+}
+
+// FLOOR MODAL
+let _editFloorId = null;
+function openFloorModal(id) {
+  _editFloorId = id || null;
+  const floor = id ? getFloors().find(f => f.id === id) : null;
+  document.getElementById('floor-modal-title').textContent = id ? '✏️ עריכת קומה' : '➕ קומה חדשה';
+  document.getElementById('floor-modal-name').value = floor ? floor.name : '';
+  document.getElementById('floor-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('floor-modal-name').focus(), 80);
+}
+function closeFloorModal() { document.getElementById('floor-modal-overlay').classList.remove('open'); }
+function saveFloor() {
+  const name = document.getElementById('floor-modal-name').value.trim();
+  if (!name) { showToast('נא להזין שם קומה', 'error'); return; }
+  const floors = getFloors();
+  if (_editFloorId) {
+    const f = floors.find(f => f.id === _editFloorId); if (f) f.name = name;
+  } else {
+    floors.push({ id: 'fl_' + Date.now(), name, createdAt: Date.now() });
+  }
+  saveFloors(floors);
+  closeFloorModal();
+  renderPlans();
+  showToast(_editFloorId ? '✅ קומה עודכנה' : '✅ קומה נוספה', 'success');
+}
+function confirmDeleteFloor(id) {
+  const floor = getFloors().find(f => f.id === id);
+  if (!floor) return;
+  const floorApts = getApartments().filter(a => a.floorId === id);
+  const msg = floorApts.length
+    ? `מחיקת "${floor.name}" תמחק גם ${floorApts.length} דירות וכל קבציהן. להמשיך?`
+    : `למחוק את "${floor.name}"?`;
+  if (!confirm(msg)) return;
+  saveFloors(getFloors().filter(f => f.id !== id));
+  const remainApts = getApartments().filter(a => a.floorId !== id);
+  saveApartments(remainApts);
+  const allFiles = getAptFiles();
+  floorApts.forEach(a => { delete allFiles[a.id]; });
+  saveAptFiles(allFiles);
+  if (expandedFloor === id) expandedFloor = null;
+  renderPlans();
+  showToast('🗑️ קומה נמחקה');
+}
+
+// APARTMENT MODAL
+let _editAptId = null, _aptFloorId = null;
+function openAptModal(id, floorId) {
+  _editAptId = id || null;
+  _aptFloorId = floorId || (id ? getApartments().find(a => a.id === id)?.floorId : null);
+  const apt = id ? getApartments().find(a => a.id === id) : null;
+  document.getElementById('apt-modal-title').textContent = id ? '✏️ עריכת דירה' : '➕ דירה חדשה';
+  document.getElementById('apt-modal-name').value = apt ? apt.name : '';
+  document.getElementById('apt-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('apt-modal-name').focus(), 80);
+}
+function closeAptModal() { document.getElementById('apt-modal-overlay').classList.remove('open'); }
+function saveApt() {
+  const name = document.getElementById('apt-modal-name').value.trim();
+  if (!name) { showToast('נא להזין שם דירה', 'error'); return; }
+  const apts = getApartments();
+  if (_editAptId) {
+    const a = apts.find(a => a.id === _editAptId); if (a) a.name = name;
+  } else {
+    apts.push({ id: 'apt_' + Date.now(), floorId: _aptFloorId, name, createdAt: Date.now() });
+  }
+  saveApartments(apts);
+  closeAptModal();
+  renderPlans();
+  showToast(_editAptId ? '✅ דירה עודכנה' : '✅ דירה נוספה', 'success');
+}
+function confirmDeleteApt(id) {
+  const apt = getApartments().find(a => a.id === id);
+  if (!apt || !confirm(`למחוק את "${apt.name}" וכל קבציה?`)) return;
+  saveApartments(getApartments().filter(a => a.id !== id));
+  const allFiles = getAptFiles();
+  delete allFiles[id];
+  saveAptFiles(allFiles);
+  if (expandedApt === id) expandedApt = null;
+  renderPlans();
+  showToast('🗑️ דירה נמחקה');
+}
+
+// PLAN TYPES MODAL
+function openPlanTypeModal() {
+  document.getElementById('plan-type-input').value = '';
+  renderPlanTypesList();
+  document.getElementById('plan-type-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('plan-type-input').focus(), 80);
+}
+function closePlanTypeModal() {
+  document.getElementById('plan-type-modal-overlay').classList.remove('open');
+  renderPlans();
+}
+function renderPlanTypesList() {
+  const types = getPlanTypes();
+  document.getElementById('plan-types-manage-list').innerHTML = types.map((t, i) => `
+    <div class="pt-manage-row">
+      <span class="pt-manage-label">📋 ${t}</span>
+      <button class="pt-delete-btn" onclick="deletePlanType(${i})">✕</button>
+    </div>`).join('');
+}
+function addPlanType() {
+  const name = document.getElementById('plan-type-input').value.trim();
+  if (!name) return;
+  const types = getPlanTypes();
+  if (types.includes(name)) { showToast('סוג זה כבר קיים', 'error'); return; }
+  types.push(name);
+  savePlanTypes(types);
+  document.getElementById('plan-type-input').value = '';
+  renderPlanTypesList();
+  showToast('✅ סוג נוסף');
+}
+function deletePlanType(idx) {
+  const types = getPlanTypes();
+  types.splice(idx, 1);
+  savePlanTypes(types);
+  renderPlanTypesList();
 }
 
 // ===== DRAG & DROP =====
@@ -1310,7 +1634,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalendar();
   setupCalendarSwipe();
   setupDrop('upd-photo-zone', handleUpdatePhotos);
-  setupDrop('plans-drop-zone', handlePlansUpload);
   document.getElementById('upd-date').max = todayStr();
   document.getElementById('edit-new-type').addEventListener('keydown', e => { if (e.key === 'Enter') editAddType(); });
 });
